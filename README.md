@@ -1,4 +1,4 @@
-# Introduction to Table Relations with SQL
+# Introduction to Table Relations in SQL
 
 Knowing at least the basics of writing SQL is a useful programming skill. The
 majority of databases you'll work with as a developer will have more than one
