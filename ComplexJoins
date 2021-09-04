@@ -1,0 +1,212 @@
+-- Complex Joins 
+
+-- Learning Goals
+-- Know what an outer join is
+-- Distinguish an inner join from an outer join
+-- Identify different types of outer joins: left, right, and full
+
+-- Why its Important 
+
+/* Grade Example (inner join) 
+    You want to list of all the students with an "A" in the class 
+    We only want those students in the class with top grades, ignoring the other students in the class*/
+
+/* Field Trip Example (Complex/Outer Join) 
+    The class is going on a field trip 
+    The cose is $10 per student 
+    As a teacher, we want to keep track of which students have paid AND 
+    which students still need to pay */
+
+/* Complex joins are useful and important when it comes to situations like the FIeld Trip Example 
+    A complex join (or outer join) will return the overlap between the two circles AND the rest  */
+
+/* Overview 
+    A Complex join in SQL is also referred to as an outer join 
+    It is referred to as a complex simply because SQL is conducting an inner join in addition to gather a 
+    little more information from one or more tables.  */
+
+-- Difference bewteen Inner Join and Outer Join 
+
+-- inner join is going to return only the rows from the db that match the query 
+TEACHERS TABLE             STUDENTS TABLE
+id                         student_id   teacher_id
+---------------            ------------------------
+1                          1            NULL
+2                          2            1
+3                          3            NULL 
+
+-- Look at an inner Join 
+SELECT *
+FROM Teachers
+INNER JOIN Students
+ON Teachers.id = Students.teacher_id; 
+
+-- This returns 
+id  |  student_id |  teacher_id
+--------------------------
+1   |  2          |  1 
+
+-- Note: Since we're joining tables, running this example SQL command will return a result with both an id and a teacherid_, even though they are the same.
+
+-- Outer Join 
+/* These will return all of the matching rows AND all of the additional rows from the specified table 
+    Which table/additional rows are determined by the type of outer join 
+    There are three types of outer joins 
+        Left Outer Join 
+        Right Outer Join 
+        Full Outer Join */
+
+-- SQLite doesn't support RIGHT OUTER JOIN or FULL OUTER JOIN 
+-- They are still important to understand to use in other databases like PostgreSQL 
+
+-- Left Outer Join 
+-- Returns the normal inner join results 
+-- and also returns all of the rows from the left-most (first metntioned table)
+
+SELECT *
+FROM Teachers
+LEFT OUTER JOIN Students
+ON Teachers.teacher_id = Students.teacher_id; 
+
+-- Returns 
+teacher_id  |  student_id
+--------------------------
+1           |  2
+2           |  NULL
+3           |  NULL 
+-- Every row from teacher's table is returned whether there is a corresponding student or not 
+
+-- Right Outer Join 
+-- returns all of the rows from the right-most (last mentioned) table 
+SELECT *
+FROM Teachers
+RIGHT OUTER JOIN Students
+ON Teachers.teacher_id = Students.teacher_id; 
+
+teacher_id     |  student_id
+--------------------------
+NULL           |  1
+1              |  2
+NULL           |  3 
+
+-- Full Outer Join 
+-- returns all of the rows from all the tables 
+SELECT *
+FROM Teachers
+FULL OUTER JOIN Students
+ON Teachers.teacher_id = Students.teacher_id; 
+
+teacher_id     |  student_id
+--------------------------
+NULL           |  1
+1              |  2
+NULL           |  3
+2              |  NULL
+3              |  NULL 
+----------------------------------------------------------------------------------------
+Example 
+
+--Create Our Students Table
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    name TEXT,
+    teacher_id INTEGER); 
+
+-- Insert Students 
+INSERT INTO students (name, teacher_id)
+    VALUES ("Dave", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Jessie", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Bob", 1);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Sara", 2);
+INSERT INTO students (name, teacher_id)
+    VALUES ("George",  2);
+INSERT INTO students (name, teacher_id)
+    VALUES ("Alexis",  NULL); 
+
+-- Students Schema (SELECT * FROM students*)
+id               name        teacher_id
+---------------  ----------  ----------
+1                Dave           1
+2                Jessie         1
+3                Bob            1
+4                Sara           2
+5                George         2
+6                Alexis 
+
+-- Create Our Teachers Table 
+CREATE TABLE teachers (
+    id INTEGER PRIMARY KEY,
+    name TEXT); 
+
+-- Insert Into Teachers 
+INSERT INTO teachers (name)
+    VALUES ("Joe");
+INSERT INTO teachers (name)
+    VALUES ("Steven");
+INSERT INTO teachers (name)
+    VALUES ("Jeff"); 
+
+-- Teachers Schema 
+id               name
+---------------  ---------
+1                Joe
+2                Steven
+3                Jeff 
+
+-- Left Outer Join 
+SELECT * FROM Teachers 
+LEFT OUTER JOIN Students on teacher_id == Students.teacher_id;
+
+-- Results 
+id  teacher_name    id      name     teacher_id
+--- ------------   ----    ------    -----------
+1     Joe          3       Bob          1
+1     Joe          1       Dave         1
+1     Joe          2       Jessie       1
+2     Steven       5       George       2
+2     Steven       4       Sara         2
+3     Jeff         NULL    NULL         NULL 
+
+-- The query returns all of the records in the left table (teachers) regardless of any of those 
+-- records have a match in the right table (students). It will also return any matching records from the 
+-- right table. 
+-- In our example;
+-- it first returns all of the teachers followed by any students that has a teacher_id 
+-- You can see that Alexis was not returned b/c her teacher_id column is NULL 
+
+
+-- Right Outer Join 
+SELECT * from Teachers
+   RIGHT OUTER JOIN Students on Teachers.id = Students.teacher_id; 
+
+id    teacher_name   id      name     teacher_id
+---   ------------  ----    ------    -----------
+1       Joe         3       Bob          1
+1       Joe         1       Dave         1
+1       Joe         2       Jessie       1
+2       Steven      5       George       2
+2       Steven      4       Sara         2
+NULL    NULL        6       Alexis       NULL 
+/* Returns all of the records in the right table (students) regardless if any of those records have a match 
+    in the left table (teachers) It will also return any matching records from the left table 
+    You can see that all of the students were returned, but these time Jeff was left out */
+
+-- Full Join 
+SELECT * from Teachers
+   FULL OUTER JOIN Students on Teachers.id = Students.teacher_id; 
+
+id    teacher_name   id      name     teacher_id
+---   ------------  ----    ------    -----------
+1       Joe          3       Bob          1
+1       Joe          1       Dave         1
+1       Joe          2       Jessie       1
+2       Steven       5       George       2
+2       Steven       4       Sara         2
+3       Jeff         NULL    NULL         NULL
+NULL    NULL         6       Alexis       NULL 
+/* This Join can be referred to as a FULL OUTER JOIN or a FULL JOIN 
+    This query will return all of the records from boeth tables, joining records from the left table (Teachers) that 
+    match records from the right table (students) */
