@@ -172,8 +172,77 @@ Hana             Tabby            mugumogu
 Nona             Tortoiseshell    Sophie 
 Lil' Bub         perma-kitten  
 
--- jlkj
+-- Here our LEFT OUTER JOIN has returned to us all of the cats (including Lil'Bub!)
+-- With matched data regarding owner's name for those cats that have an owner, and and empty space in 
+-- in the owner's name column for cats that doesn't have an owner 
 
 
+--------------------------------------------------------------------------------------------
+-- RIGHT OUTER JOIN and FULL OUTER JOIN 
+-- SQLite doesn't support RIGHT OUTER JOINS or FULL OUTER JOINS 
+-- We'll review it briefly so you can see how it works in other DB like Postgres 
+
+-- This section isn't a code-along,
+
+-- RIGHT OUTER JOIN 
+-- is the reverse of LEFT OUTER JOIN 
+-- it returns all data from the right, or second table and the matched data from the left or first table 
+
+--Let's take a look a boiler-plate RIGHT OUTER JOIN query:
+SELECT column_name(s)
+FROM first_table
+RIGHT JOIN second_table
+ON first_table.column_name = second_table.column_name; 
+
+--Before we (pretend to) write our own RIGHT OUTER JOIN, let's insert a new owner into our Owners table:
+INSERT INTO owners (name) VALUES ("Penny"); 
+
+-- Writing REIGHT OUTER JOINS 
+SELECT Cats.name, Cats.breed, Owners.name 
+FROM Cats 
+RIGHT OUTER JOIN Owners 
+ON Cats.owner_id = Owners.id; 
+
+-- Returns
+name             breed            name      
+---------------  ---------------  ----------
+Maru             Scottish Fold    mugumogu  
+Hana             Tabby            mugumogu  
+Nona             Tortoiseshell    Sophie    
+                                  Penny   
+
+-- Notice the Lil'Bub is again missing. But our cat-less owner, Penny is present 
+-- This is b/c the RIGHT OUTER JOIN will select all of the data from the second table 
+-- and only match data from the first table 
+
+----------------------------------------------------------------------------------------------
+
+-- FULL OUTER JOIN 
+-- queries will combine the result of both a LEFT and RIGHT OUTER JOIN 
+-- They will return all the data from both the first and second table 
+
+-- Boiler-plate 
+SELECT column_name(s)
+FROM first_table
+FULL OUTER JOIN second_table
+ON first_table.column_name = second_table.column_name; 
+
+-- Writing FULL OUTER JOINS 
+SELECT Cats.name, Cats.breed, Owners.name
+FROM Cats
+FULL OUTER JOIN Owners
+ON Cats.owner_id = Owners.id; 
+
+--Returns 
+name             breed            name      
+---------------  ---------------  ----------
+Maru             Scottish Fold    mugumogu  
+Hana             Tabby            mugumogu  
+Nona             Tortoiseshell    Sophie 
+Lil' Bub         perma-kitten 
+                                  Penny      
+
+-- Our results include both cats without owners and owners without cats 
+-- In other words it includes all of our data 
 
 
