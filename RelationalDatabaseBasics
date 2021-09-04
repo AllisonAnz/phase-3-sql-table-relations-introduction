@@ -1,0 +1,48 @@
+Relational Database Basics
+
+Learning Goals
+Describe the structure of a relational database as tables related through the use of primary and foreign keys
+Define a primary key
+Define a foreign key
+
+Realtional Database 
+Say you were hired to do payroll. Every two weeks you need to lookup every employee and 
+how much they get paid, and send them a check and send a notice of that check to their manager 
+
+Say the manager gets paid every month, instead of two weeks. Once a month you need to go 
+through a spreadsheet again and just find the manager and send them their check. 
+In such situation we would need a place to store all of the managers and employees 
+
+We need some way to associate the employee to their manager 
+
+Relational database, simply is a database structure to recognice relations amoung stored items of information
+It would be easy to tell an employee that they belong to a certain manager and to tell 
+a manager that they have many empoyees 
+
+This is similar to OOR programs in which instance of a class are related to one another 
+A relational database allow us to store representations of our Ruby objects and preserve the 
+relationships between those objects when we store them 
+
+Relational Database Structure 
+
+Continuing with our payroll example, 
+Employees and managers would be stored in their own tables 
+
+Manager table 
+Manager ID  Name        Pay 
+    1       Steve       7,000
+    2       SpongeBob   10,000
+
+Employee Table 
+Employee ID     Name    Pay     Manager ID 
+    1           Bob     3,000       1
+    2           Karen   4,000       1
+    3           Patrick 4,000       2 
+
+Our Employee table has a Manager Id column filled with the ID number of the person's manager 
+In relational database, every row has a number, called a primary key 
+Relationships bewteen tables can be established by using a foreign key column like "Manger Id" that use the primary key of another table to refer to a member of that table 
+
+We use the Manager Id as the Foreign key because a name could not be unique. Primary Keys 
+are always unique 
+

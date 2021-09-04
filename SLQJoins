@@ -1,0 +1,179 @@
+-- SQL Joins 
+
+-- Learning Goals
+-- Describe how SQL join clauses combine data from multiple tables based on a common column between them
+-- Define the different types of SQL joins: inner, outer, left outer, right outer
+-- Practice writing join statements
+
+-- Discuss how to retrieve specific sets of data from associated tables using SQL join
+
+/* What is a JOIN?
+    
+A SQL JOIN clause is a way to combine rows from two or more tables, based on a common column between them 
+Relational databases allow us not only to store data that is interconnected, but to retrieve that data in ways that reflect that interconnectivity 
+
+For Example we have two tables, A Cats table an an Owners table 
+Cats and owners are associataed by a foreign key owner_id in the Cats table 
+
+How do we craft a query that would grab us all of that cats with a particular owner and even 
+include information about that owner in the data returned to us by that query?
+
+We know how to write a SELECT statement that gets us all the cats with a particular owner_id */
+SELECT * FROM cats WHERE owner_id = 1; 
+
+-- Join Types 
+/* There are several different types of joins 
+    The following Join Keywords will be crafted into SELECT statments to achieve the described return values  */
+
+/* Type                  Description
+    ----------------------------------------------------------------------------------------
+    INNER JOIN          Returns all rows when there is at least one match in BOTH tables 
+    LEFT[OUTER}JOIN     Returns all rows from the left table, and the matched rows from the right table
+    RIGHT JOIN*         Returns all rows from the right table, and the matched rows from the left table 
+    FULL[OUTER] JOIN*   Retruns all rows when there is a match in ONE of the tables 
+    
+    * NOT supported in SQLite 
+    Note: Unfortunately, SQLite does not support the RIGHT JOIN or the FULL OUTER JOIN clauses. 
+    However, you can emulate the FULL OUTER JOIN by using the LEFT JOIN clause.
+    http://www.sqlitetutorial.net/sqlite-full-outer-join/ 
+    */
+
+-- Setting Up the Database 
+-- Create your database in your terminal with the following command:
+    sqlite3 pets_database.db 
+
+-- Now, inside the sqlite3> prompt, create the following tables and insert the values:
+-- Cats Table:
+CREATE TABLE cats (
+id INTEGER PRIMARY KEY,
+name TEXT,
+age INTEGER,
+breed TEXT,
+owner_id INTEGER); 
+
+-- Owners Table:
+CREATE TABLE owners (id INTEGER PRIMARY KEY, name TEXT); 
+
+-- Insert Data:
+INSERT INTO owners (name) VALUES ("mugumogu");
+INSERT INTO owners (name) VALUES ("Sophie");
+INSERT INTO cats (name, age, breed, owner_id) VALUES ("Maru", 3, "Scottish Fold", 1);
+INSERT INTO cats (name, age, breed, owner_id) VALUES ("Hana", 3, "Tabby", 1);
+INSERT INTO cats (name, age, breed, owner_id) VALUES ("Nona", 4, "Tortoiseshell", 2);
+INSERT INTO cats (name, age, breed) VALUES ("Lil' Bub", 2, "perma-kitten"); 
+
+ /* A Note on Foreign Keys 
+    Cats table has an owner_id column 
+    This column is a foreign key that connects each cat to an individual owner 
+    If an individual cats has an owner_id of 2 that indicates that the cat belongs to the owner who has an ID of 2 */
+
+-- Confirm this run SELECT statement 
+SELECT * FROM cats WHERE owner_id = 2; 
+
+-- You should see just one cat returned to us, the one that belongs to Sophie, our second owner:
+id               name             age         breed          owner_id        
+---------------  ---------------  ----------  -------------  ----------
+3                Nona             4           Tortoiseshell  2
+
+------------------------------------------------------------------------------------------------------------------
+-- Code Along 1: INNER JOIN
+
+/* Definition:
+    An INNER JOIN query will return all the rows from both tables you are querying where a certain condition is met 
+    In other words, INNER JOIN will select all rows from both tables as long as there is a match between the 
+    specified columns of each table  */
+
+-- Boiler-plate INNER Join Statement 
+SELECT column_name(s)
+FROM first_table
+INNER JOIN second_table
+ON first_table.column_name = second_table.column_name; 
+
+-- Writting INNER JOINS 
+-- Write an INNER JOIN query that returns the name and breed of the cats along with the name of the cat's owner 
+SELECT Cats.name, Cats.breed, Owners.name
+FROM Cats 
+INNER JOIN owners
+ON Cats.owner_id = Owners.id;
+
+-- The above statement should return the following:
+name             breed            name
+---------------  ---------------  ----------
+Maru             Scottish Fold    mugumogu  
+Hana             Tabby            mugumogu  
+Nona             Tortoiseshell    Sophie   
+-- Notice that the owner's name column is outputed 
+-- This is because we requested the name column from Owner's table
+-- Break Down:
+    sql SELECT Cats.name, Cats.breed, Owners.name ...
+        -- We are specifying which columns from each table we want to select data from 
+        -- We use the table_name.column_name notation to grab columns from two different tables  
+
+    sql ...FROM Cats INNER JOIN Owners
+        -- We join our two tables together with INNER JOIN 
+
+    sql ...ON Cats.owner_id = Owners.id;
+        -- We tell our query HOW to connect, or join the two tables 
+        -- We tell our query which columns in each table function as the foreign key/primary key connect 
+        -- Through this, our query will correctly identify which cat belongs to which owner and return that information 
+
+        -- We are telling our query that the owner_id column on the Cats table is filled with data that corresponds 
+        -- to the data in the id column of the Owners table. We are indicating that a calue of 1, for example, 
+        -- in an individal cat's owner_id column refers to the inidivial owner who has an id of 1 
+        -- We are telling our query to return only those cats and owners who share this connectiong 
+
+-- Lets Run the query again, this time aliasing the name column of the Owner's table as owners_name 
+-- Using the AS keyword 
+SELECT Cats.name, Cats.breed, Owners.name 
+AS "owner_name" 
+FROM Cats 
+INNER JOIN Owners 
+ON Cats.owner_id = Owners.id; 
+
+This should return:
+name             breed            owner_name
+---------------  ---------------  ----------
+Maru             Scottish Fold    mugumogu  
+Hana             Tabby            mugumogu  
+Nona             Tortoiseshell    Sophie  
+
+-- Where's Lil' Bub?
+-- INNER JOIN returns all of the data for which a certain condition is true 
+-- means that any data that doesn't meet the JOIN condition will not be returned 
+-- Any cats that have an empty id column will not be selected by the query 
+
+---------------------------------------------------------------------------------------------------------
+-- Code Along II: LEFT OUTER JOIN 
+/* Definition:
+    A LEFT OUTER JOIN query returns all rows from the left, or first table, regardless of whether or not they met 
+    the JOIN condition 
+    The query will also return the matched data from the right, or second table 
+    
+    In the case of data from the first table that doesn't meet our JOIN condition, the resulting output will incldue 
+    NULL, or empty, values for missing matched columns  */
+
+-- boiler-plate LEFT OUTER JOIN 
+SELECT column_name(s)
+FROM first_table
+LEFT [OUTER] JOIN second_table
+ON first_table.column_name=second_table.column_name; 
+
+-- Writing LEFT OUTER JOINs 
+SELECT Cats.name, Cats.breed, Owners.name 
+FROM Cats 
+LEFT OUTER JOIN Owners 
+ON Cats.owner_id = Owners.id;
+
+-- You should see the following output returned to you:
+name             breed            name      
+---------------  ---------------  ----------
+Maru             Scottish Fold    mugumogu  
+Hana             Tabby            mugumogu  
+Nona             Tortoiseshell    Sophie 
+Lil' Bub         perma-kitten  
+
+
+
+
+
+

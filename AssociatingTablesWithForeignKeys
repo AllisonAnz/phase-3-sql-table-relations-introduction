@@ -1,0 +1,112 @@
+-- Associating Tables with Foreign Keys 
+
+-- Learning Goals
+-- Associate two data tables using a foreign key column
+-- Determine which of the two tables you're associating together will take in a foreign key column
+
+-- Relating Tables with Foreign Keys
+
+/* A blog's author has many posts and posts might in turn have many tags 
+The author has many posts. The reciprocal of this would be 
+that a post belongs to an author 
+We need to figure out how we can represent that relationship within the contraints of SQLite 
+
+In Ruby, Our Author class would have an array of Post objects 
+Our Post object would have a single attribute that holds its Author 
+This is great for Ruby, but in SQL, there is no data type for arrays. 
+You can only have Integer, Float, and Text 
+So developers had to figure out how to relate two rows (a Post and an Author) using those
+data types. 
+Is there a way we acn convert an INTEGER into a specific row in a table?
+YES> The id column of PRIMARY KEY for each row is a unique INTEGER identifier for that row 
+
+Say the Poast "10 ways to pet your cat" is written by "Joe Burgess" 
+Joe's id is 5. We just need to add a new column of our Posts table with the id of the 
+Author that it's reltaed to called author_id 
+
+This author_id column is called a "Forign key"
+To associate one table to another, given one table a column called "foreign key" with the type of INTEGER 
+and insert the primary key of another table row into that column 
+
+Code Along I: Relating Cats to Owners 
+An app that helps veterinary ofice manage the pets it sees as patients and the owners of those pets. 
+Our app has a cats table and an owners table 
+We need a way to relate, or connect these two tables that a given cat is associated to its owner and a given owner is associated to the cat(or cats) it owns 
+ */
+
+-- create a pets_database.db. 
+
+-- Create a cats table and insert data into the table 
+CREATE TABLE cats (
+id INTEGER PRIMARY KEY,
+name TEXT,
+age INTEGER,
+breed TEXT); 
+
+INSERT INTO cats (name, age, breed)
+VALUES ("Maru", 3, "Scottish Fold");
+
+INSERT INTO cats (name, age, breed)
+VALUES ("Hana", 1, "Tabby"); 
+
+Confirm our Data 
+SELECT * FROM cats; 
+
+-- Create an Owners Table 
+CREATE TABLE owners (id INTEGER PRIMARY KEY, name TEXT); 
+
+-- Now That we have our owners table we can add a foreign key column to the pets table 
+
+-- Step 3: Add Foreign Key to Cats Table 
+-- Use the Following Statement to add this column 
+ALTER TABLE cats ADD COLUMN owner_id INTEGER; 
+
+-- Check your cats chema with .schema and you should see 
+.schema cats
+
+CREATE TABLE cats (
+id INTEGER PRIMARY KEY,
+name TEXT,
+age INTEGER,
+breed TEXT,
+owner_id INTEGER); 
+
+-- Now we're read to associate cats to their owners by created an owner and assigning that owner's ID 
+-- to certain cat's owner_id column 
+
+-- Step 4: Associating Cats to Owners 
+-- Make new Owner 
+INSERT INTO owners (name) VALUES ("mugumogu"); 
+
+-- Check that we did that correctly with 
+SELECT * FROM owners; 
+
+-- You'll see the following 
+1 | mugumogu 
+
+-- Mugumogu is the owner of Hana and Maru 
+--  Create the association 
+UPDATE cats SET owner_id = 1 WHERE name = "Maru";
+UPDATE cats SET owner_id = 1 WHERE name = "Hana"; 
+
+-- Let's check out our updated cats table:
+SELECT * FROM cats WHERE owner_id = 1; 
+
+-- Should return 
+1 | Maru | 3 | Scottish Fold | 1
+2 | Hana | 1 | Tabby         | 1 
+
+-- Establishing Foreign Key: Determining Which table Gets a "foreign key" Column 
+/* Why did we decide to give our cats table a foreign key and not the owners?
+    Why would we given a post table a foreign key of user_id and not the author?
+    If an owner gets another cat, we'd have to keep growing our table horizonally forever 
+    id  name        catid1  catid2
+    1   mugumogu    1       2 
+    
+    We can also think about the relationship b/n owners and our cats in the context of a "has many"
+    and "belongs to" relationship. An owner can have many cats, but a cat can only belong to one owner 
+    A user can write many posts, but each post that was written can only belong to one user
+    
+    Things that "has many" is considered to be that parent 
+    Things that "belongs to" we'll call child 
+    Child tables get the foreign key column, the value of which is the primary key of that data's/row's parent */
